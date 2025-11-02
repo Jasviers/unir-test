@@ -1,4 +1,5 @@
 import app
+from math import sqrt, log10
 
 
 class InvalidPermissions(Exception):
@@ -16,7 +17,7 @@ class Calculator:
 
     def multiply(self, x, y):
         if not app.util.validate_permissions(f"{x} * {y}", "user1"):
-            raise InvalidPermissions('User has no permissions')
+            raise InvalidPermissions("User has no permissions")
 
         self.check_types(x, y)
         return x * y
@@ -30,10 +31,24 @@ class Calculator:
 
     def power(self, x, y):
         self.check_types(x, y)
-        return x ** y
+        return x**y
+
+    def root(self, x):
+        if x < 0:
+            raise TypeError("Square root value can't be negative")
+        self.check_type(x)
+        return sqrt(x)
+
+    def logBase10(self, x):
+        self.check_type(x)
+        return log10(x)
 
     def check_types(self, x, y):
         if not isinstance(x, (int, float)) or not isinstance(y, (int, float)):
+            raise TypeError("Parameters must be numbers")
+
+    def check_type(self, x):
+        if not isinstance(x, (int, float)):
             raise TypeError("Parameters must be numbers")
 
 

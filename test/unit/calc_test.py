@@ -14,16 +14,50 @@ class TestCalculate(unittest.TestCase):
     def setUp(self):
         self.calc = Calculator()
 
+    ### CHECK HAPPY RESULTS ###
     def test_add_method_returns_correct_result(self):
         self.assertEqual(4, self.calc.add(2, 2))
         self.assertEqual(0, self.calc.add(2, -2))
         self.assertEqual(0, self.calc.add(-2, 2))
         self.assertEqual(1, self.calc.add(1, 0))
 
+    def test_substract_method_returns_correct_result(self):
+        self.assertEqual(0, self.calc.substract(2, 2))
+        self.assertEqual(4, self.calc.substract(2, -2))
+        self.assertEqual(-4, self.calc.substract(-2, 2))
+        self.assertEqual(1, self.calc.substract(1, 0))
+        self.assertEqual(0, self.calc.substract(-2, -2))
+
+    @patch("app.util.validate_permissions", side_effect=mocked_validation, create=True)
+    def test_multiply_method_returns_correct_result(self, _validate_permissions):
+        self.assertEqual(4, self.calc.multiply(2, 2))
+        self.assertEqual(-4, self.calc.multiply(2, -2))
+        self.assertEqual(-4, self.calc.multiply(-2, 2))
+        self.assertEqual(0, self.calc.multiply(1, 0))
+        self.assertEqual(4, self.calc.multiply(-2, -2))
+
     def test_divide_method_returns_correct_result(self):
         self.assertEqual(1, self.calc.divide(2, 2))
         self.assertEqual(1.5, self.calc.divide(3, 2))
 
+    def test_power_method_returns_correct_result(self):
+        self.assertEqual(4, self.calc.power(2, 2))
+        self.assertEqual(0.25, self.calc.power(2, -2))
+        self.assertEqual(4, self.calc.power(-2, 2))
+        self.assertEqual(1, self.calc.power(4, 0))
+        self.assertEqual(0.25, self.calc.power(-2, -2))
+
+    def test_root_method_returns_correct_result(self):
+        self.assertEqual(0, self.calc.root(0))
+        self.assertEqual(3, self.calc.root(9))
+        self.assertEqual(5, self.calc.root(25))
+
+    def test_logBase10_method_returns_correct_result(self):
+        self.assertEqual(1, self.calc.logBase10(10))
+        self.assertEqual(2, self.calc.logBase10(100))
+        self.assertEqual(8, self.calc.logBase10(100000000))
+
+    ### CHECK FAILS NAN ###
     def test_add_method_fails_with_nan_parameter(self):
         self.assertRaises(TypeError, self.calc.add, "2", 2)
         self.assertRaises(TypeError, self.calc.add, 2, "2")
@@ -33,19 +67,71 @@ class TestCalculate(unittest.TestCase):
         self.assertRaises(TypeError, self.calc.add, object(), 2)
         self.assertRaises(TypeError, self.calc.add, 2, object())
 
+    def test_substract_method_fails_with_nan_parameter(self):
+        self.assertRaises(TypeError, self.calc.substract, "2", 2)
+        self.assertRaises(TypeError, self.calc.substract, 2, "2")
+        self.assertRaises(TypeError, self.calc.substract, "2", "2")
+        self.assertRaises(TypeError, self.calc.substract, None, 2)
+        self.assertRaises(TypeError, self.calc.substract, 2, None)
+        self.assertRaises(TypeError, self.calc.substract, object(), 2)
+        self.assertRaises(TypeError, self.calc.substract, 2, object())
+
+    def test_multiply_method_fails_with_nan_parameter(self):
+        self.assertRaises(TypeError, self.calc.multiply, "2", 2)
+        self.assertRaises(TypeError, self.calc.multiply, 2, "2")
+        self.assertRaises(TypeError, self.calc.multiply, "2", "2")
+        self.assertRaises(TypeError, self.calc.multiply, None, 2)
+        self.assertRaises(TypeError, self.calc.multiply, 2, None)
+        self.assertRaises(TypeError, self.calc.multiply, object(), 2)
+        self.assertRaises(TypeError, self.calc.multiply, 2, object())
+
     def test_divide_method_fails_with_nan_parameter(self):
         self.assertRaises(TypeError, self.calc.divide, "2", 2)
         self.assertRaises(TypeError, self.calc.divide, 2, "2")
         self.assertRaises(TypeError, self.calc.divide, "2", "2")
+        self.assertRaises(TypeError, self.calc.divide, None, 2)
+        self.assertRaises(TypeError, self.calc.divide, 2, None)
+        self.assertRaises(TypeError, self.calc.divide, object(), 2)
+        self.assertRaises(TypeError, self.calc.divide, 2, object())
 
+    def test_power_method_fails_with_nan_parameter(self):
+        self.assertRaises(TypeError, self.calc.power, "2", 2)
+        self.assertRaises(TypeError, self.calc.power, 2, "2")
+        self.assertRaises(TypeError, self.calc.power, "2", "2")
+        self.assertRaises(TypeError, self.calc.power, None, 2)
+        self.assertRaises(TypeError, self.calc.power, 2, None)
+        self.assertRaises(TypeError, self.calc.power, object(), 2)
+        self.assertRaises(TypeError, self.calc.power, 2, object())
+
+    def test_root_method_fails_with_nan_parameter(self):
+        self.assertRaises(TypeError, self.calc.root, "2")
+        self.assertRaises(TypeError, self.calc.root, None)
+        self.assertRaises(TypeError, self.calc.root, object())
+
+    def test_logBase10_method_fails_with_nan_parameter(self):
+        self.assertRaises(TypeError, self.calc.logBase10, "2")
+        self.assertRaises(TypeError, self.calc.logBase10, None)
+        self.assertRaises(TypeError, self.calc.logBase10, object())
+
+    ### CHECK FAILS ###
     def test_divide_method_fails_with_division_by_zero(self):
         self.assertRaises(TypeError, self.calc.divide, 2, 0)
         self.assertRaises(TypeError, self.calc.divide, 2, -0)
         self.assertRaises(TypeError, self.calc.divide, 0, 0)
         self.assertRaises(TypeError, self.calc.divide, "0", 0)
 
-    @patch('app.util.validate_permissions', side_effect=mocked_validation, create=True)
-    def test_multiply_method_returns_correct_result(self, _validate_permissions):
+    def test_root_method_fails_negative(self):
+        self.assertRaises(TypeError, self.calc.root, -1)
+        self.assertRaises(TypeError, self.calc.root, -14)
+        self.assertRaises(TypeError, self.calc.root, -99)
+
+    def test_logBase10_method_fails_negative(self):
+        self.assertRaises(ValueError, self.calc.logBase10, -1)
+        self.assertRaises(ValueError, self.calc.logBase10, -14)
+        self.assertRaises(ValueError, self.calc.logBase10, -99)
+
+    @patch("app.util.validate_permissions", side_effect=mocked_validation, create=True)
+    def test_multiply2_method_returns_correct_result(self, _validate_permissions):
         self.assertEqual(4, self.calc.multiply(2, 2))
         self.assertEqual(0, self.calc.multiply(1, 0))
         self.assertEqual(0, self.calc.multiply(-1, 0))
